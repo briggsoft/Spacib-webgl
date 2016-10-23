@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>Surreal Reporter</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				background-color: rgb(200,200,200);
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				color: #ffffff;
+				padding: 5px;
+				font-family:Monospace;
+				font-size:13px;
+				font-weight: bold;
+				text-align:center;
+			}
+
+			a {
+				color: #000000;
+			}
+			
+			html {
+        overflow: auto;
+}
+		</style>
+
+	</head>
+	<body>
+
+		<div id="container"></div>
+		
+
+		<script src="three.min.js"></script>
+
+		<script>
+
+			var camera, scene, renderer;
+
+			var texture_placeholder,
+			isUserInteracting = false,
+			onMouseDownMouseX = 90, onMouseDownMouseY = 0,
+			lon = 90, onMouseDownLon = 0,
+			lat = 90, onMouseDownLat = 0,
+			phi = 0, theta = 0,
+			target = new THREE.Vector3();
+
+			init();
+			animate();
+
+			function init() {
+
+				var container, mesh;
+
+				container = document.getElementById( 'container' );
+
+				camera = new THREE.PerspectiveCamera( 90, window.innerWidth / window.innerHeight, 1, 1100 );
+
+				scene = new THREE.Scene();
+
+				texture_placeholder = document.createElement( 'canvas' );
+				texture_placeholder.width = 512;
+				texture_placeholder.height = 512;
+
+				var context = texture_placeholder.getContext( '2d' );
+				context.fillStyle = 'rgb( 200, 200, 200 )';
+				context.fillRect( 0, 0, texture_placeholder.width, texture_placeholder.height );
+
+				var materials = [
+
+					loadTexture( 'textures/123fg/123_left2.png' ), // left
+					loadTexture( 'textures/123fg/123_right1.png' ), // right
+					loadTexture( 'textures/123fg/123_top3.png' ), // top
+					loadTexture( 'textures/123fg/123_bottom4.png' ), // bottom
+					loadTexture( 'textures/123fg/123_back6.png' ), // back
+					loadTexture( 'textures/123fg/123_front5.png' )  // front
+
+				];
+
+				mesh = new THREE.Mesh( new THREE.BoxGeometry( 300, 300, 300, 7, 7, 7 ), new THREE.MeshFaceMaterial( materials ) );
+				mesh.scale.x = - 1;
+				scene.add( mesh );
+
+				renderer = new THREE.CanvasRenderer();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				container.appendChild( renderer.domElement );
+
+				
+				//
+
+			}
+
+			function loadTexture( path ) {
+
+				var texture = new THREE.Texture( texture_placeholder );
+				var material = new THREE.MeshBasicMaterial( { map: texture, overdraw: 0.5 } );
+
+				var image = new Image();
+				image.onload = function () {
+
+					texture.image = this;
+					texture.needsUpdate = true;
+
+				};
+				image.src = path;
+
+				return material;
+
+			}
+
+			function animate() {
+
+				requestAnimationFrame( animate );
+				update();
+
+			}
+
+			function update() {
+
+				if ( isUserInteracting === false ) {
+
+					lon += 0.015;
+
+				}
+
+				lat = Math.max( - 85, Math.min( 85, lat ) );
+				phi = THREE.Math.degToRad( 90 - lat );
+				theta = THREE.Math.degToRad( lon );
+
+				target.x = 500 * Math.sin( phi ) * Math.cos( theta );
+				target.y = 500 * Math.cos( phi );
+				target.z = 500 * Math.sin( phi ) * Math.sin( theta );
+
+				camera.lookAt( target );
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+	</body>
+</html>
