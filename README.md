@@ -1,4 +1,4 @@
 # Spacib-webgl
 Spinning space cube 
 
-https://briggsoft.github.io/Spacib-webgl 
+https://pocketfood.github.io/Spacib-webgl 
